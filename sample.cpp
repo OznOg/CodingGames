@@ -1,5 +1,7 @@
+
 #include <iostream>
 #include <iomanip>
+#include <vector>
 
 using namespace std;
 
@@ -9,21 +11,20 @@ int main()
 
   cin >> size;
 
-  unsigned int* a = new unsigned int[size / 16]; // <- input tab to encrypt
-  unsigned int* b = new unsigned int[size / 16]; // <- output tab
+  std::vector<unsigned int> a(size / 16); // <- input tab to encrypt
+  std::vector<unsigned int> b(size / 16); // <- output tab
  
-  for (int i = 0; i < size / 16; i++) {   // Read size / 16 integers to a
-    cin >> hex >> a[i];
+  for (auto &e : a) {   // Read size / 16 integers to a
+    cin >> hex >> e;
   }
 
-  for (int i = 0; i < size / 16; i++) {   // Write size / 16 zeros to b
-    b[i] = 0;
-  }	
- 
   for (int i = 0; i < size; i++)
     for (int j = 0; j < size; j++) {
-      b[(i + j) / 32] ^= ( (a[i / 32] >> (i % 32)) &
-		       (a[j / 32 + size / 32] >> (j % 32)) & 1 ) << ((i + j) % 32);   // Magic centaurian operation
+      std::div_t dij = std::div(i + j, 32);
+      std::div_t di = std::div(i, 32);
+      std::div_t dj = std::div(j, 32);
+      
+      b[dij.quot] ^= ( (a[di.quot] >> (di.rem)) & (a[dj.quot + size / 32] >> (dj.rem)) & 1 ) << dij.rem;   // Magic centaurian operation
   }
  
   for(int i = 0; i < size / 16; i++) {
