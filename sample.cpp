@@ -15,15 +15,63 @@ std::string doit(int size, std::vector<unsigned int> a) {
  A <<= 32;
  A += a[0];
 
+ std::vector<uint64_t> ai(size);
+ std::vector<uint64_t> aj(size);
+
   for (int i = 0; i < size; i++) {
-      auto bi = (A >> (i % 32)) & 1;
+      ai[i] = (A >> i) & 1;
+      aj[i] = (A >> (i + 32)) & 1;
+  }
 
+  for (int i = 0; i < size; i++) {
       for (int j = 0; j < size; j++) {
-          auto bj = (A >> ((j % 32) + 32)) & 1;
-
-          B ^= ( bi & bj) << i + j;   // Magic centaurian operation
+          B ^= (ai[i] & aj[j]) << i + j;   // Magic centaurian operation
       }
   }
+
+#if 0
+
+B0 = A0 & X0
+B1 = A0 & X1 + A1 & X0
+B2 = A0 & X2 + A1 & X1 + A2 & X0
+B3 = A0 & X3 + A1 & X2 + A2 & X1 + A3 & X0
+...
+
+B61 = A29 & X31 + A30 & X30 + A31 & X29
+B62 = A30 & X31 + A31 & X30
+B63 = A31 & X31
+
+si A1 & X1 == 1 =>    A1 == X1 == 1 => B1 = X2 + A2
+              0 => si A1 == X1 == 0 => B1 = 0
+                   si A1 == 0; X1 == 1 => B1 = A2
+                   si A1 == 1; X1 == 0 => B1 = X2
+
+
+B1 + B0 => (A0 & X0) + (A0 & X1) + (A1 & X0) => A0 & (X0 + X1) + A1 & X0
+
+
+A & B ^ A & C == A & (B + C)
+0   1   0   0    0
+0   0   0   1    0     
+0   1   0   1    0     
+1   0   1   0    0     
+1   1   1   0    1     
+1   0   1   1    1 
+
+  BC
+A 00 01 11 01   
+0 0  0  0  0
+1 0  1  0  1
+
+
+
+A1 A2 A3 00 00 00
+B1 B2 B3 00 00 00
+00 B1 B2 B3 00 00
+00 00 B1 B2 B3 00
+00 00 00 B1 B2 B3
+
+#endif
 
 //  876543210
 //  XXXXXX000
