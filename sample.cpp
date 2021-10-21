@@ -10,13 +10,14 @@ std::string doit(int size, std::vector<unsigned int> a) {
 
   std::vector<unsigned int> b(size / 16); // <- output tab
  
+ uint64_t A = a[1];
+ A <<= 32;
+ A += a[0];
   for (int i = 0; i < size; i++) {
-      std::div_t di = std::div(i, 32);
-      auto bi = (a[di.quot] >> di.rem) & 1;
+      auto bi = (A >> (i % 32)) & 1;
 
       for (int j = 0; j < size; j++) {
-          std::div_t dj = std::div(j, 32);
-          auto bj = (a[dj.quot + size / 32] >> dj.rem) & 1;
+          auto bj = (A >> ((j % 32) + 32)) & 1;
 
           std::div_t dij = std::div(i + j, 32);
           b[dij.quot] ^= ( bi & bj) << dij.rem;   // Magic centaurian operation
