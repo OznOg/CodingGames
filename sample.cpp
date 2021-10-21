@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <bitset>
 
 using namespace std;
 
@@ -23,10 +24,16 @@ std::string doit(int size, std::vector<unsigned int> a) {
       aj[i] = (A >> (i + 32)) & 1;
   }
 
-  for (int i = 0; i < size; i++) {
-      for (int j = 0; j < size; j++) {
-          B ^= (ai[i] & aj[j]) << i + j;   // Magic centaurian operation
+  for (int z = 0; z < 32; z++) {
+      uint64_t r = 0;
+      for (int i = 0; i < z + 1; i++) {
+          for (int j = 0; j + i < z + 1 ; j++) {
+              r ^= (ai[i] & aj[j]) << i + j;   // Magic centaurian operation
+              r ^= (ai[31 - i] & aj[31 - j]) << (62 - (i + j));   // Magic centaurian operation
+          }
       }
+      cout << setw(32) << hex <<  r << endl;
+      B |= r;
   }
 
 #if 0
@@ -113,6 +120,9 @@ auto r =  doit(32, a);
 auto s = r == "46508fb7 6677e201";
 
 cout << (s ? "success" : "failure") << " " << r << endl;
+
+if (!s)
+    cout << "expect' " << "46508fb7 6677e201" << endl;
  /* 
     Good luck humans     
  */
