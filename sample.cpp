@@ -27,12 +27,11 @@ std::string doit(int size, std::vector<unsigned int> a) {
   for (int z = 0; z < 32; z++) {
       uint64_t r = 0;
       for (int i = 0; i < z + 1; i++) {
-          for (int j = 0; j + i < z + 1 ; j++) {
-              r ^= (ai[i] & aj[j]) << i + j;   // Magic centaurian operation
-              r ^= (ai[31 - i] & aj[31 - j]) << (62 - (i + j));   // Magic centaurian operation
-          }
+          r ^= (ai[i] & aj[z - i]) << z;   // Magic centaurian operation
+          r ^= (ai[31 - i] & aj[31 - (z -i)]) << (62 - z);   // Magic centaurian operation
       }
-      cout << setw(32) << hex <<  r << endl;
+      //cout << setw(16) << setfill('0') <<  hex <<  r << endl;
+      cout << std::bitset<64>(r) << endl;
       B |= r;
   }
 
